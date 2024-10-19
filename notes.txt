@@ -1,0 +1,383 @@
+system programming
+
+
+To progressively cover system programming, focusing on building projects step by step, here’s an outline:
+1. Basic Assembly Programming
+
+    Goal: Get comfortable with assembly language programming, understand the structure of assemblers.
+    Project: Write simple assembly programs (e.g., add two numbers, basic loops).
+        Skills: Learn registers, memory access, basic arithmetic instructions.
+        Tools: Use NASM (Netwide Assembler) for x86 assembly language.
+
+2. Simple Assembler
+
+    Goal: Understand how assemblers work.
+    Project: Build a simple one-pass assembler.
+        Skills: Create symbol tables, convert mnemonics to opcodes, handle basic instructions.
+        Tools: Write this in C or Python (since you're familiar with Python, you could start here).
+
+3. Two-Pass Assembler
+
+    Goal: Expand to a two-pass assembler.
+    Project: Implement a two-pass assembler that handles forward references and produces machine code.
+        Pass 1: Build the symbol table.
+        Pass 2: Resolve addresses, generate object code.
+        Skills: Handle forward/backward references, file I/O for reading and generating object files.
+
+4. Macros in Assembly
+
+    Goal: Learn macro processing and advanced macro facilities.
+    Project: Implement a simple macro processor.
+        Skills: Handle macro definitions, expansions, nested macros.
+        Enhancements: Implement advanced features like conditional macros and recursive macros.
+        Next Step: Combine this with the assembler project to design a macro assembler.
+
+5. Lexical Analysis
+
+    Goal: Learn compiler front-end development.
+    Project: Build a simple lexical analyzer (lexer) for a small language.
+        Skills: Tokenize input code into meaningful lexemes (keywords, identifiers, numbers, etc.).
+        Tools: Use Flex (or write your own in Python/Go).
+        Example Task: Tokenize a small programming language (e.g., math expressions or subset of C).
+
+6. Compiler Basics
+
+    Goal: Understand the basics of a compiler’s structure.
+    Project: Build a basic interpreter/compiler for a tiny language.
+        Phases: Implement lexical analysis, parsing, and code generation for basic arithmetic expressions.
+        Skills: Syntax tree construction, generate simple bytecode or directly interpret instructions.
+
+7. Cross-Compilers
+
+    Goal: Explore cross-compilers and code generation for different architectures.
+    Project: Modify your compiler to generate code for a different target architecture (e.g., ARM instead of x86).
+
+Learning Path Summary:
+
+    Simple assembly programs
+    One-pass assembler
+    Two-pass assembler
+    Macro processor + macro assembler
+    Lexical analyzer
+    Basic interpreter/compiler
+    Cross-compiler exploration
+
+With this approach, you'll build your understanding gradually while directly applying what you learn through hands-on projects.
+#1 Basic assembly programming
+
+Assembly language is a low-level programming language that provides direct control over a computer's hardware. It is specific to a computer architecture (like x86, ARM, etc.), and every instruction in assembly corresponds to a machine-level instruction.
+1. Registers
+
+Registers are small storage locations within the CPU, used to hold data temporarily for quick access. Common registers in x86 assembly include:
+
+    AX, BX, CX, DX: General-purpose registers for data storage.
+    SI (Source Index), DI (Destination Index): Used for memory operations.
+    SP (Stack Pointer), BP (Base Pointer): Stack-related registers.
+    IP (Instruction Pointer): Points to the next instruction to be executed.
+
+Each register has different sizes: 16-bit (AX), 32-bit (EAX), and 64-bit (RAX) in modern x86 architectures.
+2. Memory Access
+
+Assembly language gives you explicit control over memory, using registers to interact with memory locations. You can move data between registers and memory, and access memory addresses directly:
+
+    MOV is the instruction to move data between registers or memory.
+
+Example:
+
+MOV AX, 10   ; Move 10 into the AX register
+MOV [var], AX ; Move the value of AX into memory location 'var'
+
+3. Basic Arithmetic Instructions
+
+Common arithmetic instructions include:
+
+    ADD: Adds two values.
+    SUB: Subtracts two values.
+    MUL: Multiplies values (for signed multiplication).
+    DIV: Divides values (for signed division).
+
+Example:
+
+MOV AX, 5   ; Load 5 into AX
+MOV BX, 3   ; Load 3 into BX
+ADD AX, BX  ; AX = AX + BX (AX now contains 8)
+
+4. Basic Control Structures
+
+Loops and jumps in assembly are done using labels and jump instructions:
+
+    LOOP: Creates a loop that decrements the CX register and jumps to a label if CX is not zero.
+    JMP: Unconditional jump to a label.
+    CMP: Compare two values.
+    JE/JNE/JG/JL: Jump if equal/not equal/greater/less.
+
+Example (loop):
+
+MOV CX, 5     ; Set loop counter to 5
+start_loop:
+  ; Your code here
+  LOOP start_loop  ; Decrease CX, jump to start_loop if CX != 0
+
+Project: Simple Assembly Programs
+1. Add Two Numbers
+
+section .data
+  num1 dw 5
+  num2 dw 10
+  result dw 0
+
+section .text
+  global _start
+_start:
+  MOV AX, [num1]     ; Load num1 into AX
+  ADD AX, [num2]     ; Add num2 to AX
+  MOV [result], AX   ; Store result in memory
+
+  ; Exit (for Linux syscalls)
+  MOV AX, 1          ; Syscall number for exit
+  XOR BX, BX         ; Exit status
+  INT 0x80
+
+2. Basic Loop
+
+section .bss
+  count resb 1
+
+section .text
+  global _start
+_start:
+  MOV CX, 10        ; Set loop counter to 10
+loop_start:
+  ; Loop code here
+  LOOP loop_start   ; Decrease CX and loop if CX != 0
+
+  ; Exit
+  MOV AX, 1
+  XOR BX, BX
+  INT 0x80
+
+Tools to Use
+NASM (Netwide Assembler)
+
+    NASM is a popular assembler for x86 architecture. It compiles assembly code into object files and can link them into executables.
+
+To assemble and run:
+
+nasm -f elf64 your_program.asm   # Assemble
+ld -o your_program your_program.o  # Link
+./your_program                   # Run
+
+Next Steps
+
+    Write simple programs: Start with adding two numbers and loops, and get comfortable with registers and memory access.
+    Explore advanced instructions: Look into string operations, system calls, and conditional jumps.
+    Move to building a basic assembler: Once you’re comfortable with writing and understanding assembly programs, you'll be ready to implement your assembler.
+
+This will give you enough experience to move forward with creating a basic assembler!
+Extra: Assembly Programming Overview
+1. Registers Overview
+
+Registers are small, very fast storage locations in the CPU used to hold data for quick access. You already understand general-purpose registers like AX, BX, etc., but there are other specialized registers too, each serving different roles.
+SI (Source Index) and DI (Destination Index)
+
+    These registers are used primarily for operations involving memory copying, string manipulation, or arrays.
+
+    SI points to the source location in memory, and DI points to the destination.
+
+    Example use case: copying a string from one memory location to another.
+
+SP (Stack Pointer)
+
+    SP points to the top of the stack, a special area in memory used for storing temporary data (like function arguments, return addresses, etc.).
+
+    The stack works like a stack of plates: you add (push) data to the top and remove (pop) data from the top.
+
+    Example: when a function is called, the return address is pushed onto the stack, so the program knows where to return after the function finishes.
+
+BP (Base Pointer)
+
+    BP is also related to the stack. It is used as a reference point within the stack, mainly to access function parameters and local variables.
+    Typically, when a function starts, the current value of the stack pointer (SP) is copied into BP to mark the start of that function’s "frame" on the stack.
+
+IP (Instruction Pointer)
+
+    IP holds the memory address of the next instruction to be executed by the CPU. The program counter (PC) in some other architectures plays the same role.
+    You don’t usually manipulate IP directly, but it’s essential in control flow operations like jumps and calls.
+
+2. Memory Access
+
+Memory is where your program's data is stored. Assembly gives you direct control over memory, and there are two main ways to interact with it:
+
+    Direct Addressing: You directly access a specific memory address.
+    Register Indirect Addressing: You use registers (like SI or DI) to point to memory locations.
+
+3. Sections in an Assembly Program
+
+Now let's discuss the different sections in an assembly program like .data, .bss, and .text. These sections organize your code and data:
+.data Section
+
+    This section is used to define initialized data — variables that have values assigned when the program starts.
+    Example:
+
+    section .data
+        num1 dw 5  ; 'dw' means 'define word' (16-bit), so this declares a 16-bit variable with value 5
+
+    dw (Define Word): In assembly, dw defines a 16-bit value (a "word"). There are other similar instructions:
+        db: Define byte (8-bit).
+        dd: Define double word (32-bit).
+
+.bss Section
+
+    The .bss section is used to declare uninitialized data — variables that will be allocated in memory but not given a specific value until the program runs.
+    Example:
+
+    section .bss
+        count resb 1  ; Reserve 1 byte of memory for a variable called 'count'
+
+    resb (Reserve Byte): This reserves space in memory but doesn't initialize it. There are similar commands:
+        resw: Reserve word (16-bit).
+        resd: Reserve double word (32-bit).
+
+.text Section
+
+    This is where the actual instructions of the program go. This section contains the code that will be executed.
+    Example:
+
+    section .text
+        global _start   ; Define the entry point (where the program starts execution)
+    _start:
+        ; Your instructions here
+
+Why Not Write Instructions Directly?
+
+The sections (.data, .bss, .text) provide structure to the program:
+
+    Data: Keeps track of variables and constants.
+    Code: Stores executable instructions. This separation helps the operating system and assembler organize memory properly. For instance, .data and .bss might be loaded into different memory areas than the code.
+
+global _start
+
+    This tells the assembler where the program’s execution should begin. Without this, the assembler wouldn’t know which part of your code is the "entry point."
+
+    Example: In a C program, main() is the starting point. Similarly, _start is the starting point in assembly programs.
+
+Simplified Program Breakdown
+
+Let’s revisit the program to understand it better:
+
+section .data
+  num1 dw 5        ; Define num1, a 16-bit word with the value 5
+  num2 dw 10       ; Define num2, a 16-bit word with the value 10
+  result dw 0      ; Define result, initialized to 0
+
+section .text
+  global _start    ; This is where the program will start execution
+_start:
+  MOV AX, [num1]   ; Load the value of num1 (5) into register AX
+  ADD AX, [num2]   ; Add the value of num2 (10) to AX (AX now contains 15)
+  MOV [result], AX ; Store the value of AX (15) into result
+
+Explanation:
+
+    num1, num2, and result are variables stored in the .data section.
+    The instructions in the .text section load num1 into the AX register, add num2 to it, and store the result in memory at result.
+
+Final Notes
+
+    Registers: Hold temporary data for fast access.
+    Memory Access: Move data between registers and memory.
+    Sections: Organize your program's data and code.
+    Global _start: Defines where the program starts executing.
+
+With this understanding, you can now explore writing simple programs, and from here, you can move towards building your assembler!
+Appendix: Registers in x86 Assembly
+
+In x86-64 architecture, registers are split into different sizes (64-bit, 32-bit, 16-bit, and 8-bit). Let's break them down by level:
+1. 64-bit Registers (64-bit Mode)
+
+These are the full, general-purpose registers available in 64-bit mode.
+
+    rax: Accumulator register (used for arithmetic operations).
+    rbx: Base register (often used for data).
+    rcx: Counter register (commonly used in loops).
+    rdx: Data register (used in I/O operations).
+    rsi: Source index register (used in string operations).
+    rdi: Destination index register (used in string operations).
+    rbp: Base pointer (used to reference the base of the stack frame).
+    rsp: Stack pointer (points to the top of the stack).
+    r8 to r15: Additional general-purpose registers (only available in 64-bit mode).
+
+These registers are the full 64-bit versions.
+2. 32-bit Registers (Lower 32 bits of 64-bit Registers)
+
+These are the lower 32 bits of the corresponding 64-bit registers. When you use these registers, the upper 32 bits of the corresponding 64-bit register are cleared (set to zero).
+
+    eax: Lower 32 bits of rax.
+    ebx: Lower 32 bits of rbx.
+    ecx: Lower 32 bits of rcx.
+    edx: Lower 32 bits of rdx.
+    esi: Lower 32 bits of rsi.
+    edi: Lower 32 bits of rdi.
+    ebp: Lower 32 bits of rbp.
+    esp: Lower 32 bits of rsp.
+    r8d to r15d: Lower 32 bits of r8 to r15.
+
+3. 16-bit Registers (Lower 16 bits of 32-bit Registers)
+
+These are the lower 16 bits of the corresponding 32-bit registers. Using these does not affect the upper 48 bits of the 64-bit register.
+
+    ax: Lower 16 bits of eax.
+    bx: Lower 16 bits of ebx.
+    cx: Lower 16 bits of ecx.
+    dx: Lower 16 bits of edx.
+    si: Lower 16 bits of esi.
+    di: Lower 16 bits of edi.
+    bp: Lower 16 bits of ebp.
+    sp: Lower 16 bits of esp.
+    r8w to r15w: Lower 16 bits of r8d to r15d.
+
+4. 8-bit Registers (Lower 8 or Middle 8 bits of 16-bit Registers)
+
+These registers can access either the lowest 8 bits or the next 8 bits of the corresponding 16-bit registers.
+
+    al: Lower 8 bits of ax.
+    bl: Lower 8 bits of bx.
+    cl: Lower 8 bits of cx.
+    dl: Lower 8 bits of dx.
+
+There are also the "high byte" registers, which refer to the next 8 bits (bits 8-15) of the 16-bit registers (only for ax, bx, cx, and dx):
+
+    ah: Bits 8-15 of ax.
+    bh: Bits 8-15 of bx.
+    ch: Bits 8-15 of cx.
+    dh: Bits 8-15 of dx.
+
+In x86-64, however, there are additional low 8-bit registers for the higher registers:
+
+    r8b to r15b: Lower 8 bits of r8w to r15w.
+
+Summary Table
+64-bit 	32-bit 	16-bit 	8-bit (low) 	8-bit (high)
+rax 	eax 	ax 	al 	ah
+rbx 	ebx 	bx 	bl 	bh
+rcx 	ecx 	cx 	cl 	ch
+rdx 	edx 	dx 	dl 	dh
+rsi 	esi 	si 	sil 	-
+rdi 	edi 	di 	dil 	-
+rbp 	ebp 	bp 	bpl 	-
+rsp 	esp 	sp 	spl 	-
+r8 	r8d 	r8w 	r8b 	-
+r9 	r9d 	r9w 	r9b 	-
+r10 	r10d 	r10w 	r10b 	-
+r11 	r11d 	r11w 	r11b 	-
+r12 	r12d 	r12w 	r12b 	-
+r13 	r13d 	r13w 	r13b 	-
+r14 	r14d 	r14w 	r14b 	-
+r15 	r15d 	r15w 	r15b 	-
+Notes:
+
+    Registers like al, ah, bl, bh, etc., are used for operations where only 8 bits of data are needed (e.g., working with bytes).
+    High-byte registers (ah, bh, ch, dh) are part of legacy x86 architecture. Newer registers (like r8, r9, etc.) only have low 8-bit equivalents (r8b, r9b, etc.) without "high-byte" counterparts.
+
+This structure allows you to work with different sizes of data and to optimize operations when using smaller data sizes.
+
